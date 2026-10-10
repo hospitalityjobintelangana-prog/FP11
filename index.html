@@ -1,0 +1,839 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Function Prospectus</title>
+<style>
+:root{--ink:#17202e;--line:#4a5563;--desk:#d8dde4;--muted:#5b6676}
+*{box-sizing:border-box}
+html{background:var(--desk)}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;color:var(--ink);font-size:10pt}
+
+/* ––––– toolbar (screen only) ––––– */
+.bar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px;background:#fff;border-bottom:1px solid #c3cad3}
+.bar h1{font-size:15px;margin:0 auto 0 0;font-weight:700}
+.bar button,.bar select{font:inherit;font-size:13px;padding:7px 12px;border:1px solid #b5bdc8;background:#fff;border-radius:6px;cursor:pointer;color:var(–ink)}
+.bar button:hover,.bar select:hover{background:#f1f4f7}
+.bar button.primary{background:var(–ink);border-color:var(–ink);color:#fff}
+.bar button.primary:hover{background:#2b384d}
+.status{font-size:12px;color:var(–muted)}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid #2563eb;outline-offset:2px}
+
+dialog{border:1px solid #b5bdc8;border-radius:10px;padding:18px;width:min(520px,92vw);color:var(–ink);font-family:inherit}
+dialog::backdrop{background:rgba(20,30,50,.45)}
+dialog h2{font-size:16px;margin:0 0 12px}
+dialog label{display:block;font-size:13px;margin-bottom:10px;color:var(–muted)}
+dialog input,dialog textarea{display:block;width:100%;margin-top:4px;font:inherit;font-size:14px;padding:8px;border:1px solid #b5bdc8;border-radius:6px;color:var(–ink)}
+dialog textarea{resize:vertical;line-height:1.4}
+dialog .row{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+dialog button{font:inherit;font-size:13px;padding:7px 12px;border:1px solid #b5bdc8;background:#fff;border-radius:6px;cursor:pointer;color:var(–ink)}
+dialog button.primary{background:#1f7a4d;border-color:#1f7a4d;color:#fff}
+#savedList{list-style:none;margin:0;padding:0;max-height:50vh;overflow:auto}
+#savedList li{display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #e1e5ea}
+#savedList .nm{flex:1;font-size:14px;overflow-wrap:anywhere}
+#savedList small{display:block;color:var(–muted);font-size:11px}
+#savedEmpty{font-size:13px;color:var(–muted)}
+
+/* ––––– paper ––––– */
+.stage{padding:18px 8px 40px;display:flex;justify-content:center}
+.sheet{flex-shrink:0;width:210mm;min-height:297mm;background:#fff;padding:6mm 9mm;box-shadow:0 2px 14px rgba(20,30,50,.18);display:flex;flex-direction:column}
+
+.head{display:grid;grid-template-columns:30mm 1fr 30mm;align-items:center;gap:4mm;margin-bottom:2mm}
+.logo{height:14mm;border:1px dashed #9aa5b3;display:flex;align-items:center;justify-content:center;font-size:8pt;color:var(–muted);cursor:pointer;position:relative;overflow:hidden;text-align:center}
+.logo img{max-width:100%;max-height:100%;object-fit:contain;display:none}
+.logo.has{border-color:transparent}
+.logo.has img{display:block}
+.logo.has span{display:none}
+.logo input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%}
+.logo-x{position:absolute;top:1px;right:1px;width:18px;height:18px;padding:0;line-height:1;border:0;border-radius:50%;background:#17202e;color:#fff;font-size:12px;cursor:pointer;display:none;z-index:2}
+.logo.has:hover .logo-x{display:block}
+.title{text-align:center}
+.brand{font-size:14pt;font-weight:700;letter-spacing:.02em}
+.doc-title{font-size:17pt;font-weight:700;letter-spacing:.04em;margin-top:1mm}
+
+/* ––––– sections ––––– */
+.sec{margin-top:2mm;–c:#1f4e79;–on:#fff}
+.sec-h{position:relative;display:flex;align-items:center;background:var(–c);color:var(–on);padding:1mm 9mm 1mm 2.5mm;font-weight:700;font-size:10.5pt;min-height:6mm}
+.sec-t{text-transform:uppercase;letter-spacing:.05em;outline:none;min-width:10mm}
+.sec.menu .sec-h{justify-content:center;padding:1.4mm 9mm;font-size:12.5pt}
+.pick{position:absolute;right:2mm;top:50%;transform:translateY(-50%);display:flex}
+.pick input{width:22px;height:22px;padding:0;border:2px solid var(–on);border-radius:50%;background:none;cursor:pointer}
+.pick input::-webkit-color-swatch-wrapper{padding:0}
+.pick input::-webkit-color-swatch{border:0;border-radius:50%}
+.pick input::-moz-color-swatch{border:0;border-radius:50%}
+
+table{width:100%;border-collapse:collapse;table-layout:fixed;border:1.5px solid var(–line)}
+td,th{border:1px solid var(–line);padding:0;vertical-align:top}
+th{border-bottom-width:1.5px}
+td.k{background:color-mix(in srgb,var(–c) 11%,#fff);font-weight:700;font-size:9pt;line-height:1.2;padding:.7mm 2mm}
+th{background:color-mix(in srgb,var(–c) 11%,#fff);font-size:8.5pt;text-align:left;padding:.6mm 2mm;font-weight:700}
+.ed{min-height:4.6mm;padding:.7mm 2mm;line-height:1.2;outline:none;white-space:pre-wrap;word-break:break-word}
+td .ed{font-size:9.5pt}
+.ed:empty::before{content:attr(data-ph);color:#9aa3af}
+.ed:focus,input.f:focus{background:#fffbe6;outline:2px solid var(–c);outline-offset:-2px}
+input.f{width:100%;border:0;padding:.5mm 2mm;font:inherit;font-size:9.5pt;background:transparent;color:inherit;height:5.2mm}
+.brand.ed,.doc-title.ed,.sec-t.ed{padding:0;min-height:0}
+td .role.ed{font-size:9.5pt}
+td.k>.ed{padding:0;min-height:0;font-size:9pt}
+td.k>.ed:focus{outline-offset:2px}
+
+/* removable rows: control floats in the page margin so the table never shifts */
+td.ctl{width:0;border:0;padding:0;position:relative;background:none}
+.x{position:absolute;left:5px;top:3px;width:20px;height:20px;padding:0;line-height:1;border:1px solid #b5bdc8;border-radius:50%;background:#fff;color:#7a1f1f;font-size:13px;cursor:pointer}
+.x:hover{background:#fbeaea}
+.add{margin-top:1.5mm;font:inherit;font-size:12px;padding:4px 10px;border:1px dashed #8e98a5;background:#fff;border-radius:6px;cursor:pointer;color:var(–ink)}
+.add:hover{background:#f1f4f7}
+
+/* ––––– approvals ––––– */
+.sec.sign{margin-top:auto;padding-top:3mm}
+.sign table td{border:1px solid var(–line)}
+.role{display:block;text-align:center;font-weight:700;font-size:9.5pt;padding:1mm!important;background:color-mix(in srgb,var(–c) 11%,#fff);border-bottom:1px solid var(–line)}
+.sigarea{height:12.5mm;display:flex;align-items:flex-end;padding:1.5mm 2mm;font-size:9pt;color:#333}
+
+/* ––––– print ––––– */
+@page{size:A4;margin:0}
+@media print{
+html{background:#fff}
+.no-print,.bar{display:none!important}
+.stage{padding:0;display:block}
+.sheet{box-shadow:none;width:210mm;min-height:293mm;margin:0!important;transform:none!important}
+.stage{height:auto!important;overflow:visible!important}
+*{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.ed:empty::before{content:””}
+.logo:not(.has){border-color:transparent}
+.logo:not(.has) span{display:none}
+input::-webkit-calendar-picker-indicator{display:none}
+.ed:focus,input.f:focus{background:none;outline:none}
+}
+</style>
+
+</head>
+<body>
+
+<header class="bar no-print">
+  <h1>Function Prospectus</h1>
+  <span class="status" id="status" role="status">Draft saves in this browser</span>
+  <select id="theme" aria-label="Apply a colour theme to all sections">
+    <option value="">Colour theme…</option>
+    <option value="classic">Classic navy</option>
+    <option value="forest">Forest</option>
+    <option value="burgundy">Burgundy</option>
+    <option value="graphite">Graphite</option>
+  </select>
+  <button type="button" id="btnNew" title="Clear guest and function details, keep menu, colours and logo">New booking</button>
+  <button type="button" id="btnSample" title="Reload the sample LIC conference prospectus">Load sample</button>
+  <button type="button" id="btnSave" title="Save this booking in this browser">Save booking</button>
+  <button type="button" id="btnSaved" title="Open or delete saved bookings">Saved bookings</button>
+  <button type="button" id="btnImport">Import</button>
+  <button type="button" id="btnExport">Export</button>
+  <button type="button" id="btnWa" title="Send the booking details as a WhatsApp message">Send on WhatsApp</button>
+  <button type="button" id="btnDocx" title="Download an editable Word file with the section colours">Download Word</button>
+  <button type="button" id="btnPdf" title="Download a coloured PDF">Download PDF</button>
+  <button type="button" id="btnPrint" class="primary">Print / Save PDF</button>
+  <input type="file" id="fileImport" accept="application/json,.json" hidden>
+</header>
+
+<dialog id="dlgSaved" class="no-print">
+  <h2>Saved bookings</h2>
+  <ul id="savedList"></ul>
+  <p id="savedEmpty">Nothing saved yet. Use Save booking to keep this prospectus in this browser.</p>
+  <div class="row"><button type="button" id="savedClose">Close</button></div>
+</dialog>
+
+<dialog id="dlgWa" class="no-print">
+  <h2>Send on WhatsApp</h2>
+  <label>Phone number (optional, with country code, e.g. 919876543210)
+    <input id="waPhone" type="tel" inputmode="numeric" placeholder="Leave empty to choose a contact in WhatsApp">
+  </label>
+  <label>Message (you can edit it before sending)
+    <textarea id="waMsg" rows="14"></textarea>
+  </label>
+  <div class="row"><button type="button" id="waCancel">Cancel</button><button type="button" id="waSend" class="primary">Open WhatsApp</button></div>
+</dialog>
+
+<main class="stage">
+<div class="sheet" id="sheet">
+
+  <div class="head">
+    <label class="logo" id="logoBox" title="Click to add your logo">
+      <span>Click to add logo</span>
+      <img id="logoImg" alt="Logo">
+      <input type="file" id="logoFile" accept="image/*" class="no-print">
+      <button type="button" class="logo-x no-print" id="logoX" title="Remove logo" aria-label="Remove logo">×</button>
+    </label>
+    <div class="title">
+      <div class="brand ed one" contenteditable="true" data-f="hotel" data-ph="[Hotel Name]"></div>
+      <div class="doc-title ed one" contenteditable="true" data-f="doctitle" data-ph="[Document Title]"></div>
+    </div>
+    <div></div>
+  </div>
+
+  <!-- 1 · function information -->
+
+  <section class="sec" data-sec="info">
+    <div class="sec-h"><span class="sec-t ed one" contenteditable="true" data-f="t_info"></span>
+      <label class="pick no-print" title="Section colour"><input type="color" data-color="info" aria-label="Function details colour"></label></div>
+    <table>
+      <colgroup><col style="width:19%"><col style="width:31%"><col style="width:19%"><col style="width:31%"></colgroup>
+      <tr><td class="k">Confirmed Pax</td><td><div class="ed one" contenteditable="true" data-f="pax_c" data-ph="[Confirmed Pax]"></div></td>
+          <td class="k">Expected Pax</td><td><div class="ed one" contenteditable="true" data-f="pax_e" data-ph="[Expected Pax]"></div></td></tr>
+      <tr><td class="k">Rate</td><td><div class="ed one" contenteditable="true" data-f="rate" data-ph="[Rate]"></div></td>
+          <td class="k">Date</td><td><input class="f" type="date" data-f="date" aria-label="Function date"></td></tr>
+      <tr><td class="k">Day</td><td><div class="ed one" contenteditable="true" data-f="day" data-ph="[Day]"></div></td>
+          <td class="k">Venue</td><td><div class="ed one" contenteditable="true" data-f="venue" data-ph="[Venue]"></div></td></tr>
+      <tr><td class="k">Timings</td><td><div class="ed one" contenteditable="true" data-f="timings" data-ph="[Timings]"></div></td>
+          <td class="k">Meal Period</td><td><div class="ed one" contenteditable="true" data-f="meal" data-ph="[Meal Period]"></div></td></tr>
+      <tr><td class="k">Guest Name &amp; Address</td><td colspan="3"><div class="ed" contenteditable="true" data-f="guest" data-ph="[Guest Name] · [Guest Address]"></div></td></tr>
+      <tr><td class="k">Reference</td><td colspan="3"><div class="ed one" contenteditable="true" data-f="ref" data-ph="[Reference]"></div></td></tr>
+    </table>
+  </section>
+
+  <!-- 2 · schedule -->
+
+  <section class="sec" data-sec="sched">
+    <div class="sec-h"><span class="sec-t ed one" contenteditable="true" data-f="t_sched"></span>
+      <label class="pick no-print" title="Section colour"><input type="color" data-color="sched" aria-label="Schedule colour"></label></div>
+    <table>
+      <colgroup><col style="width:19%"><col style="width:31%"><col style="width:19%"><col style="width:31%"></colgroup>
+      <tr><td class="k">AMT</td><td><input class="f" type="time" data-f="amt" aria-label="AMT time"></td>
+          <td class="k">Lunch</td><td><input class="f" type="time" data-f="lunch" aria-label="Lunch time"></td></tr>
+      <tr><td class="k">PMT</td><td><input class="f" type="time" data-f="pmt" aria-label="PMT time"></td>
+          <td class="k">Type of Function</td><td><div class="ed one" contenteditable="true" data-f="ftype" data-ph="[Function Type]"></div></td></tr>
+      <tr><td class="k">Advance Details</td><td><div class="ed" contenteditable="true" data-f="advance" data-ph="[Advance Details]"></div></td>
+          <td class="k">Mode of Payment</td><td><div class="ed one" contenteditable="true" data-f="mode" data-ph="[Mode of Payment]"></div></td></tr>
+      <tr><td class="k">Stage Size</td><td><div class="ed one" contenteditable="true" data-f="stage" data-ph="[Stage Size]"></div></td>
+          <td class="k">Seating Style</td><td><div class="ed one" contenteditable="true" data-f="seating" data-ph="[Seating Style]"></div></td></tr>
+    </table>
+  </section>
+
+  <!-- 3 · package and technical -->
+
+  <section class="sec" data-sec="pkg">
+    <div class="sec-h"><span class="sec-t ed one" contenteditable="true" data-f="t_pkg"></span>
+      <label class="pick no-print" title="Section colour"><input type="color" data-color="pkg" aria-label="Package colour"></label></div>
+    <table>
+      <colgroup><col style="width:19%"><col style="width:31%"><col style="width:19%"><col style="width:31%"></colgroup>
+      <tr><td class="k">Package Cycle Starts With</td><td><div class="ed one" contenteditable="true" data-f="pk_start" data-ph="[Starts With]"></div></td>
+          <td class="k">Package Cycle Ends With</td><td><div class="ed one" contenteditable="true" data-f="pk_end" data-ph="[Ends With]"></div></td></tr>
+      <tr><td class="k">Head Table</td><td><div class="ed one" contenteditable="true" data-f="head" data-ph="[Head Table]"></div></td>
+          <td class="k">Audio Visuals</td><td><div class="ed one" contenteditable="true" data-f="av" data-ph="[Audio Visuals]"></div></td></tr>
+    </table>
+  </section>
+
+  <!-- 4 · menu -->
+
+  <section class="sec menu" data-sec="menu">
+    <div class="sec-h"><span class="sec-t ed one" contenteditable="true" data-f="t_menu" data-ph="[Menu Title]"></span>
+      <label class="pick no-print" title="Section colour"><input type="color" data-color="menu" aria-label="Menu colour"></label></div>
+    <table>
+      <colgroup><col style="width:29%"><col><col style="width:0"></colgroup>
+      <thead><tr><th>Menu category</th><th colspan="2">Menu items</th></tr></thead>
+      <tbody id="menuBody"></tbody>
+    </table>
+    <button type="button" class="add no-print" id="addMenu">+ Add menu row</button>
+  </section>
+
+  <!-- 5 · special instructions -->
+
+  <section class="sec" data-sec="ins">
+    <div class="sec-h"><span class="sec-t ed one" contenteditable="true" data-f="t_ins"></span>
+      <label class="pick no-print" title="Section colour"><input type="color" data-color="ins" aria-label="Special instructions colour"></label></div>
+    <table>
+      <colgroup><col style="width:29%"><col><col style="width:0"></colgroup>
+      <tbody id="insBody"></tbody>
+    </table>
+    <button type="button" class="add no-print" id="addIns">+ Add instruction</button>
+  </section>
+
+  <!-- 6 · approvals -->
+
+  <section class="sec sign" data-sec="sign">
+    <div class="sec-h"><span class="sec-t ed one" contenteditable="true" data-f="t_sign"></span>
+      <label class="pick no-print" title="Section colour"><input type="color" data-color="sign" aria-label="Approval colour"></label></div>
+    <table>
+      <colgroup><col style="width:25%"><col style="width:25%"><col style="width:25%"><col style="width:25%"></colgroup>
+      <tr>
+        <td><div class="role ed one" contenteditable="true" data-f="r1" data-ph="[Role]"></div><div class="sigarea">Signature:</div></td>
+        <td><div class="role ed one" contenteditable="true" data-f="r2" data-ph="[Role]"></div><div class="sigarea">Signature:</div></td>
+        <td><div class="role ed one" contenteditable="true" data-f="r3" data-ph="[Role]"></div><div class="sigarea">Signature:</div></td>
+        <td><div class="role ed one" contenteditable="true" data-f="r4" data-ph="[Role]"></div><div class="sigarea">Signature:</div></td>
+      </tr>
+    </table>
+  </section>
+
+</div>
+</main>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const KEY = 'bw-function-prospectus-draft-v1';
+
+  /* ---------- sample = the LIC conference lunch ---------- */
+  const SAMPLE = {
+    f: {
+      hotel: 'BW Best Western', doctitle: 'FUNCTION PROSPECTUS',
+      t_info: 'Function details', t_sched: 'Schedule and details', t_pkg: 'Package and technical',
+      t_menu: 'VEG MENU', t_ins: 'Special instructions', t_sign: 'Approval',
+      r1: 'Banquet Coordinator', r2: 'F&B Manager', r3: 'Chef', r4: 'VP',
+      pax_c: '60', pax_e: '70', rate: '₹560++', date: '2023-09-25', day: 'MONDAY',
+      venue: 'PATIO', timings: '9 AM TO 6 PM', meal: 'LUNCH', guest: 'LIC', ref: 'MR ROY',
+      amt: '10:30', lunch: '13:00', pmt: '16:00', ftype: 'CONFERENCE', advance: '',
+      mode: 'BTC', stage: '', seating: 'CLUSTER',
+      pk_start: 'AMT', pk_end: 'PMT', head: '', av: 'NO AUDIO VISUALS'
+    },
+    menu: [
+      ['TEA/COFFEE', '2 TIMES TEA/COFFEE WITH BISCUITS'],
+      ['SOUP', 'VEG MANCHOW SOUP'],
+      ['SALAD', 'GREEN SALAD, RUSSIAN SALAD'],
+      ['VEG CURRY', 'MIX VEG CURRY WITH PANEER, BHENDI DO PYAZA'],
+      ['FLAVOURED RICE', 'PEAS PULAO'],
+      ['DAL', 'DAL TADKA'],
+      ['INDIAN BREADS', 'NAAN, ROTI'],
+      ['DESSERT', 'GULAB JAMUN'],
+      ['ICE-CREAM', 'VANILLA'],
+      ['COMMON ITEMS', 'STEAM RICE, SAMBAR, CURD, PAPAD, PICKLE, RAITHA, SALAN'],
+      ['FNB', 'WHITE BOARD, MARKER, PAD, PENCIL, WATER BOTTLES INSIDE OF THE HALL'],
+      ['FNB PRODUCTION', '']
+    ],
+    ins: [
+      ['Tea/Coffee', 'Replace cookies with biscuits (Monaco, Marie)'],
+      ['Flavoured Rice', 'Sona Masoori'],
+      ['Dessert', 'Retain Gulab Jamun'],
+      ['Lunch', '']
+    ],
+    colors: { info: '#1f4e79', sched: '#2f6f6a', pkg: '#5d4a82', menu: '#2e6b3a', ins: '#8a5a00', sign: '#44505f' },
+    logo: ''
+  };
+
+  const THEMES = {
+    classic:  { info: '#1f4e79', sched: '#2f6f6a', pkg: '#5d4a82', menu: '#2e6b3a', ins: '#8a5a00', sign: '#44505f' },
+    forest:   { info: '#2e6b3a', sched: '#3f7d58', pkg: '#55704a', menu: '#1f5130', ins: '#6b6b1f', sign: '#33463a' },
+    burgundy: { info: '#7a1f3d', sched: '#8a3a4f', pkg: '#6b2d5c', menu: '#5c1a2e', ins: '#8a4a1f', sign: '#4a3038' },
+    graphite: { info: '#2b2f36', sched: '#3a4049', pkg: '#4a515c', menu: '#1c1f24', ins: '#525966', sign: '#2b2f36' }
+  };
+
+  /* fields cleared by "New booking" */
+  const BOOKING = ['pax_c','pax_e','rate','date','day','venue','timings','meal','guest','ref','amt','lunch','pmt',
+                   'ftype','advance','mode','stage','seating','pk_start','pk_end','head','av'];
+
+  /* ---------- editable helpers ---------- */
+  const t = document.createElement('div');
+  t.contentEditable = 'plaintext-only';
+  const MODE = t.contentEditable === 'plaintext-only' ? 'plaintext-only' : 'true';
+  const arm = el => { el.contentEditable = MODE; return el; };
+  $$('.ed').forEach(arm);
+
+  const getV = e => e.matches('input') ? e.value : e.innerText.replace(/\n+$/, '');
+  const setV = (e, v) => { if (e.matches('input')) e.value = v || ''; else e.textContent = v || ''; };
+
+  /* ---------- rows ---------- */
+  function addRow(body, a = '', b = '', phA = '[Category]', phB = '[Menu Items]') {
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td class="k"><div class="ed one a"></div></td><td><div class="ed b"></div></td>' +
+      '<td class="ctl no-print"><button type="button" class="x" title="Remove row" aria-label="Remove row">×</button></td>';
+    const ea = $('.a', tr), eb = $('.b', tr);
+    ea.dataset.ph = phA; eb.dataset.ph = phB;
+    ea.textContent = a; eb.textContent = b;
+    arm(ea); arm(eb);
+    body.appendChild(tr);
+    return tr;
+  }
+  const menuBody = $('#menuBody'), insBody = $('#insBody');
+
+  /* ---------- colours ---------- */
+  function onColor(hex) {
+    const n = parseInt(hex.slice(1), 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255;
+    return (0.299 * r + 0.587 * g + 0.114 * b) > 150 ? '#111111' : '#ffffff';
+  }
+  function setColor(key, hex) {
+    const sec = $(`[data-sec="${key}"]`); if (!sec) return;
+    sec.style.setProperty('--c', hex);
+    sec.style.setProperty('--on', onColor(hex));
+    $(`[data-color="${key}"]`).value = hex;
+  }
+
+  /* ---------- logo ---------- */
+  const logoBox = $('#logoBox'), logoImg = $('#logoImg');
+  let logo = '';
+  function setLogo(src) {
+    logo = src || '';
+    if (logo) { logoImg.src = logo; logoBox.classList.add('has'); }
+    else { logoImg.removeAttribute('src'); logoBox.classList.remove('has'); }
+  }
+  $('#logoFile').addEventListener('change', e => {
+    const file = e.target.files[0]; if (!file) return;
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => {
+      const s = Math.min(1, 480 / img.width), c = document.createElement('canvas');
+      c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      setLogo(c.toDataURL('image/png')); URL.revokeObjectURL(url); save();
+    };
+    img.src = url; e.target.value = '';
+  });
+  $('#logoX').addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); setLogo(''); save(); });
+
+  /* ---------- state ---------- */
+  function collect() {
+    const s = { f: {}, menu: [], ins: [], colors: {}, logo };
+    $$('[data-f]').forEach(e => { s.f[e.dataset.f] = getV(e); });
+    s.menu = $$('tr', menuBody).map(tr => [getV($('.a', tr)), getV($('.b', tr))]);
+    s.ins = $$('tr', insBody).map(tr => [getV($('.a', tr)), getV($('.b', tr))]);
+    $$('[data-color]').forEach(i => { s.colors[i.dataset.color] = i.value; });
+    return s;
+  }
+  function apply(s) {
+    const f = { ...SAMPLE.f, ...(s.f || {}) };
+    $$('[data-f]').forEach(e => setV(e, f[e.dataset.f]));
+    menuBody.innerHTML = ''; insBody.innerHTML = '';
+    (s.menu || SAMPLE.menu).forEach(([a, b]) => addRow(menuBody, a, b));
+    (s.ins || SAMPLE.ins).forEach(([a, b]) => addRow(insBody, a, b, '[Item]', '[Special instruction]'));
+    const colors = { ...SAMPLE.colors, ...(s.colors || {}) };
+    Object.entries(colors).forEach(([k, v]) => setColor(k, v));
+    setLogo(s.logo || '');
+  }
+
+  /* ---------- autosave ---------- */
+  const status = $('#status'); let timer;
+  function save() {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      try { localStorage.setItem(KEY, JSON.stringify(collect())); status.textContent = 'Draft saved in this browser'; }
+      catch { status.textContent = 'Could not save the draft here. Use Export to keep a copy.'; }
+    }, 350);
+  }
+
+  /* ---------- events ---------- */
+  document.addEventListener('input', e => {
+    const el = e.target;
+    if (el.matches?.('.ed') && el.textContent === '') el.innerHTML = '';
+    if (el.dataset?.color) setColor(el.dataset.color, el.value);
+    if (el.dataset?.f === 'date' && el.value) {
+      const d = new Date(el.value + 'T00:00:00');
+      if (!isNaN(d)) setV($('[data-f="day"]'), d.toLocaleDateString('en-GB', { weekday: 'long' }).toUpperCase());
+    }
+    save();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && e.target.classList?.contains('one')) e.preventDefault();
+  });
+  document.addEventListener('paste', e => {
+    const el = e.target.closest?.('.ed'); if (!el) return;
+    e.preventDefault();
+    let txt = (e.clipboardData || window.clipboardData).getData('text/plain');
+    if (el.classList.contains('one')) txt = txt.replace(/\s*\n\s*/g, ' ');
+    document.execCommand('insertText', false, txt);
+  });
+  document.addEventListener('click', e => {
+    const x = e.target.closest?.('.x'); if (!x) return;
+    x.closest('tr').remove(); save();
+  });
+  $('#addMenu').addEventListener('click', () => { $('.a', addRow(menuBody)).focus(); save(); });
+  $('#addIns').addEventListener('click', () => { $('.a', addRow(insBody, '', '', '[Item]', '[Special instruction]')).focus(); save(); });
+
+  $('#theme').addEventListener('change', e => {
+    const th = THEMES[e.target.value]; if (!th) return;
+    Object.entries(th).forEach(([k, v]) => setColor(k, v));
+    e.target.value = ''; save();
+  });
+
+  $('#btnNew').addEventListener('click', () => {
+    if (!confirm('Clear the guest and function details? The menu, colours and logo stay.')) return;
+    const s = collect();
+    BOOKING.forEach(k => { s.f[k] = ''; });
+    s.ins = s.ins.map(([a]) => [a, '']);
+    apply(s); save();
+  });
+  $('#btnSample').addEventListener('click', () => {
+    if (!confirm('Replace everything on the page with the sample prospectus?')) return;
+    apply(SAMPLE); save();
+  });
+
+  const slug = s => (s || '').trim().replace(/[^\w]+/g, '-').replace(/^-|-$/g, '').slice(0, 40);
+  function fileStem() {
+    const f = collect().f;
+    return ['function-prospectus', slug(f.guest), f.date].filter(Boolean).join('_');
+  }
+  $('#btnExport').addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify(collect(), null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = fileStem() + '.json'; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  });
+  $('#btnImport').addEventListener('click', () => $('#fileImport').click());
+  $('#fileImport').addEventListener('change', async e => {
+    const file = e.target.files[0]; if (!file) return;
+    try { apply(JSON.parse(await file.text())); save(); status.textContent = 'Imported ' + file.name; }
+    catch { alert('That file is not a prospectus exported from this page.'); }
+    e.target.value = '';
+  });
+  $('#btnPrint').addEventListener('click', () => {
+    const old = document.title; document.title = fileStem();
+    window.print(); setTimeout(() => { document.title = old; }, 500);
+  });
+
+  /* ---------- saved bookings (localStorage) ---------- */
+  const BK = 'bw-function-prospectus-bookings-v1';
+  const loadB = () => { try { return JSON.parse(localStorage.getItem(BK)) || []; } catch { return []; } };
+  const storeB = a => { try { localStorage.setItem(BK, JSON.stringify(a)); return true; } catch { return false; } };
+  const dmy = d => d ? d.split('-').reverse().join('/') : '';
+  const dlgSaved = $('#dlgSaved');
+
+  $('#btnSave').addEventListener('click', () => {
+    const s = collect(); delete s.logo;
+    const name = (s.f.guest.split('\n')[0].trim() || 'Untitled') + ' · ' + (dmy(s.f.date) || 'no date');
+    const list = loadB(), i = list.findIndex(b => b.name === name);
+    const entry = { name, saved: Date.now(), data: s };
+    if (i >= 0) list[i] = entry; else list.unshift(entry);
+    status.textContent = storeB(list) ? 'Saved booking: ' + name : 'Could not save. Storage is full or blocked in this browser.';
+  });
+
+  function renderSaved() {
+    const list = loadB(), ul = $('#savedList'); ul.innerHTML = '';
+    $('#savedEmpty').style.display = list.length ? 'none' : 'block';
+    list.forEach((b, i) => {
+      const li = document.createElement('li');
+      li.innerHTML = '<div class="nm"></div><button type="button" data-o>Open</button><button type="button" data-d>Delete</button>';
+      $('.nm', li).innerHTML = '<span></span><small></small>';
+      $('.nm span', li).textContent = b.name;
+      $('.nm small', li).textContent = 'Saved ' + new Date(b.saved).toLocaleString();
+      $('[data-o]', li).onclick = () => { apply({ ...b.data, logo }); save(); dlgSaved.close(); status.textContent = 'Opened ' + b.name; };
+      $('[data-d]', li).onclick = () => {
+        if (!confirm('Delete the saved booking "' + b.name + '"?')) return;
+        const l = loadB(); l.splice(i, 1); storeB(l); renderSaved();
+      };
+      ul.appendChild(li);
+    });
+  }
+  $('#btnSaved').addEventListener('click', () => { renderSaved(); dlgSaved.showModal(); });
+  $('#savedClose').addEventListener('click', () => dlgSaved.close());
+
+  /* ---------- WhatsApp ---------- */
+  const t12 = v => { if (!v) return ''; let [h, m] = v.split(':').map(Number); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return h + ':' + String(m).padStart(2, '0') + ' ' + ap; };
+  function waText() {
+    const s = collect(), f = s.f, L = [];
+    const line = (k, v) => { if (v && String(v).trim()) L.push(k + ': ' + String(v).trim()); };
+    L.push('*' + (f.hotel || 'Function Prospectus') + ' - ' + (f.doctitle || 'FUNCTION PROSPECTUS') + '*', '');
+    line('Guest', f.guest.replace(/\n+/g, ', '));
+    line('Date', [f.day, dmy(f.date)].filter(Boolean).join(', '));
+    line('Venue', f.venue); line('Timings', f.timings); line('Meal', f.meal);
+    line('Confirmed pax', f.pax_c); line('Expected pax', f.pax_e); line('Rate', f.rate);
+    line('Reference', f.ref); line('Function', f.ftype);
+    line('AMT', t12(f.amt)); line('Lunch', t12(f.lunch)); line('PMT', t12(f.pmt));
+    line('Advance', f.advance); line('Payment', f.mode); line('Stage size', f.stage); line('Seating', f.seating);
+    line('Package starts with', f.pk_start); line('Package ends with', f.pk_end);
+    line('Head table', f.head); line('Audio visuals', f.av);
+    const menu = s.menu.filter(([a, b]) => b.trim());
+    if (menu.length) { L.push('', '*' + (f.t_menu || 'MENU') + '*'); menu.forEach(([a, b]) => L.push((a.trim() ? a.trim() + ': ' : '') + b.trim().replace(/\n+/g, ', '))); }
+    const ins = s.ins.filter(([a, b]) => b.trim());
+    if (ins.length) { L.push('', '*' + (f.t_ins || 'Special instructions') + '*'); ins.forEach(([a, b]) => L.push((a.trim() ? a.trim() + ': ' : '') + b.trim().replace(/\n+/g, ', '))); }
+    return L.join('\n');
+  }
+  const dlgWa = $('#dlgWa');
+  $('#btnWa').addEventListener('click', () => {
+    $('#waMsg').value = waText();
+    try { $('#waPhone').value = localStorage.getItem('bw-wa-phone') || ''; } catch {}
+    dlgWa.showModal();
+  });
+  $('#waCancel').addEventListener('click', () => dlgWa.close());
+  $('#waSend').addEventListener('click', () => {
+    const phone = $('#waPhone').value.replace(/\D/g, '');
+    try { localStorage.setItem('bw-wa-phone', phone); } catch {}
+    const url = 'https://wa.me/' + phone + '?text=' + encodeURIComponent($('#waMsg').value);
+    window.open(url, '_blank', 'noopener');
+    dlgWa.close();
+  });
+
+  /* ---------- DOCX / PDF export (no libraries) ---------- */
+  const hexRgb = h => { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+  const tintRgb = h => hexRgb(h).map(c => Math.round(c * 0.11 + 255 * 0.89));
+  const rgbHex = a => a.map(v => v.toString(16).padStart(2, '0')).join('').toUpperCase();
+  const loadImg = src => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; });
+
+  function buildModel() {
+    const s = collect(), f = s.f, C = s.colors;
+    const sec = (key, title, rows, extra = {}) => ({ key, title: String(title || '').toUpperCase(), color: C[key], on: onColor(C[key]), rows, ...extra });
+    const g = (a, b, c, d) => [{ k: a, v: b }, { k: c, v: d }];
+    const one = (a, b) => [{ k: a, v: b, span: true }];
+    const keep = ([a, b]) => a.trim() || b.trim();
+    return {
+      logo: s.logo, hotel: f.hotel, title: f.doctitle,
+      sections: [
+        sec('info', f.t_info, [g('Confirmed Pax', f.pax_c, 'Expected Pax', f.pax_e), g('Rate', f.rate, 'Date', dmy(f.date)),
+          g('Day', f.day, 'Venue', f.venue), g('Timings', f.timings, 'Meal Period', f.meal),
+          one('Guest Name & Address', f.guest), one('Reference', f.ref)]),
+        sec('sched', f.t_sched, [g('AMT', t12(f.amt), 'Lunch', t12(f.lunch)), g('PMT', t12(f.pmt), 'Type of Function', f.ftype),
+          g('Advance Details', f.advance, 'Mode of Payment', f.mode), g('Stage Size', f.stage, 'Seating Style', f.seating)]),
+        sec('pkg', f.t_pkg, [g('Package Cycle Starts With', f.pk_start, 'Package Cycle Ends With', f.pk_end),
+          g('Head Table', f.head, 'Audio Visuals', f.av)]),
+        sec('menu', f.t_menu, s.menu.filter(keep), { list: true, center: true, head: ['Menu category', 'Menu items'] }),
+        sec('ins', f.t_ins, s.ins.filter(keep), { list: true }),
+        sec('sign', f.t_sign, [f.r1, f.r2, f.r3, f.r4], { sign: true })
+      ]
+    };
+  }
+
+  function download(blob, name) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = name; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+  }
+
+  /* ----- zip (store only) ----- */
+  const CRC = (() => { const t = []; for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+  const crc32 = u => { let c = 0xFFFFFFFF; for (let i = 0; i < u.length; i++) c = CRC[(c ^ u[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; };
+  const u16 = v => new Uint8Array([v & 255, (v >> 8) & 255]);
+  const u32 = v => new Uint8Array([v & 255, (v >> 8) & 255, (v >> 16) & 255, (v >>> 24) & 255]);
+  function zip(files) {
+    const te = new TextEncoder(), parts = [], central = []; let off = 0;
+    const d = new Date(), time = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1);
+    const date = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+    for (const f of files) {
+      const nm = te.encode(f.name), crc = crc32(f.data), sz = f.data.length;
+      const local = [u32(0x04034b50), u16(20), u16(0x0800), u16(0), u16(time), u16(date), u32(crc), u32(sz), u32(sz), u16(nm.length), u16(0), nm, f.data];
+      const cen = [u32(0x02014b50), u16(20), u16(20), u16(0x0800), u16(0), u16(time), u16(date), u32(crc), u32(sz), u32(sz), u16(nm.length), u16(0), u16(0), u16(0), u16(0), u32(0), u32(off), nm];
+      local.forEach(p => { parts.push(p); off += p.length; }); central.push(...cen);
+    }
+    const cenLen = central.reduce((a, p) => a + p.length, 0);
+    return new Blob([...parts, ...central, u32(0x06054b50), u16(0), u16(0), u16(files.length), u16(files.length), u32(cenLen), u32(off), u16(0)],
+      { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+  }
+
+  /* ----- DOCX ----- */
+  async function buildDocx() {
+    const m = buildModel(), W = 10772, te = new TextEncoder();
+    const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const runs = (text, { b = false, sz = 19, color } = {}) => String(text).replace(/\r/g, '').split('\n').map((ln, i) =>
+      (i ? '<w:r><w:br/></w:r>' : '') + '<w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>' + (b ? '<w:b/>' : '') +
+      (color ? `<w:color w:val="${color}"/>` : '') + `<w:sz w:val="${sz}"/><w:szCs w:val="${sz}"/></w:rPr><w:t xml:space="preserve">${esc(ln)}</w:t></w:r>`).join('');
+    const para = (inner, { jc, after = 0 } = {}) => `<w:p><w:pPr><w:spacing w:before="0" w:after="${after}"/>${jc ? `<w:jc w:val="${jc}"/>` : ''}</w:pPr>${inner}</w:p>`;
+    const cell = (w, inner, { fill, span, vAlign } = {}) => `<w:tc><w:tcPr><w:tcW w:w="${w}" w:type="dxa"/>${span ? `<w:gridSpan w:val="${span}"/>` : ''}${fill ? `<w:shd w:val="clear" w:color="auto" w:fill="${fill}"/>` : ''}${vAlign ? `<w:vAlign w:val="${vAlign}"/>` : ''}</w:tcPr>${inner}</w:tc>`;
+    const tr = (cells, h) => `<w:tr><w:trPr><w:cantSplit/>${h ? `<w:trHeight w:val="${h}" w:hRule="atLeast"/>` : ''}</w:trPr>${cells}</w:tr>`;
+    const borders = on => ['top', 'left', 'bottom', 'right', 'insideH', 'insideV'].map(n => on ? `<w:${n} w:val="single" w:sz="6" w:space="0" w:color="4A5563"/>` : `<w:${n} w:val="nil"/>`).join('');
+    const tbl = (cols, rows, line = true) => `<w:tbl><w:tblPr><w:tblW w:w="${W}" w:type="dxa"/><w:tblBorders>${borders(line)}</w:tblBorders><w:tblLayout w:type="fixed"/><w:tblCellMar><w:top w:w="40" w:type="dxa"/><w:left w:w="100" w:type="dxa"/><w:bottom w:w="40" w:type="dxa"/><w:right w:w="100" w:type="dxa"/></w:tblCellMar></w:tblPr><w:tblGrid>${cols.map(c => `<w:gridCol w:w="${c}"/>`).join('')}</w:tblGrid>${rows}</w:tbl>`;
+    const spacer = '<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="100" w:lineRule="exact"/></w:pPr></w:p>';
+
+    let logoData = null, logoXml = '';
+    if (m.logo) {
+      const img = await loadImg(m.logo), k = Math.min(1008000 / img.width, 504000 / img.height);
+      const cx = Math.round(img.width * k), cy = Math.round(img.height * k);
+      logoData = Uint8Array.from(atob(m.logo.split(',')[1]), c => c.charCodeAt(0));
+      logoXml = `<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="${cx}" cy="${cy}"/><wp:docPr id="1" name="Logo"/><wp:cNvGraphicFramePr><a:graphicFrameLocks noChangeAspect="1"/></wp:cNvGraphicFramePr><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic><pic:nvPicPr><pic:cNvPr id="0" name="logo.png"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="rIdLogo"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>`;
+    }
+
+    let body = tbl([2100, W - 4200, 2100], tr(
+      cell(2100, para(logoXml)) +
+      cell(W - 4200, para(runs(m.hotel, { b: true, sz: 28 }), { jc: 'center' }) + para(runs(m.title, { b: true, sz: 34 }), { jc: 'center' })) +
+      cell(2100, para(''))), false) + spacer;
+
+    m.sections.forEach(sc => {
+      const fill = rgbHex(hexRgb(sc.color)), tint = rgbHex(tintRgb(sc.color)), on = rgbHex(hexRgb(sc.on));
+      const label = (w, t, sz = 18) => cell(w, para(runs(t, { b: true, sz })), { fill: tint });
+      let cols, rows = '';
+      if (sc.sign) {
+        cols = [W / 4, W / 4, W / 4, W / 4].map(Math.round);
+        rows = tr(cell(W, para(runs(sc.title, { b: true, sz: 21, color: on })), { fill, span: 4 })) +
+          tr(sc.rows.map((r, i) => cell(cols[i], para(runs(r, { b: true, sz: 19 }), { jc: 'center' }), { fill: tint })).join('')) +
+          tr(sc.rows.map((r, i) => cell(cols[i], para(runs('Signature:', { sz: 18 })), { vAlign: 'bottom' })).join(''), 760);
+      } else if (sc.list) {
+        cols = [Math.round(W * .29), W - Math.round(W * .29)];
+        rows = tr(cell(W, para(runs(sc.title, { b: true, sz: sc.center ? 25 : 21, color: on }), { jc: sc.center ? 'center' : null }), { fill, span: 2 }));
+        if (sc.head) rows += tr(label(cols[0], sc.head[0], 17) + label(cols[1], sc.head[1], 17));
+        sc.rows.forEach(([a, b]) => { rows += tr(label(cols[0], a) + cell(cols[1], para(runs(b)))); });
+      } else {
+        cols = [.19, .31, .19, .31].map(x => Math.round(W * x)); cols[3] = W - cols[0] - cols[1] - cols[2];
+        rows = tr(cell(W, para(runs(sc.title, { b: true, sz: 21, color: on })), { fill, span: 4 }));
+        sc.rows.forEach(r => {
+          rows += tr(r.length === 1
+            ? label(cols[0], r[0].k) + cell(cols[1] + cols[2] + cols[3], para(runs(r[0].v)), { span: 3 })
+            : label(cols[0], r[0].k) + cell(cols[1], para(runs(r[0].v))) + label(cols[2], r[1].k) + cell(cols[3], para(runs(r[1].v))));
+        });
+      }
+      body += tbl(cols, rows) + spacer;
+    });
+
+    const NS = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"';
+    const X = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
+    const doc = X + `<w:document ${NS}><w:body>${body}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="567" w:right="567" w:bottom="567" w:left="567" w:header="0" w:footer="0" w:gutter="0"/></w:sectPr></w:body></w:document>`;
+    const styles = X + '<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:sz w:val="19"/><w:szCs w:val="19"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:before="0" w:after="0" w:line="240" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults></w:styles>';
+    const types = X + `<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/>${logoData ? '<Default Extension="png" ContentType="image/png"/>' : ''}<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>`;
+    const rels = X + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>';
+    const docRels = X + `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rIdStyles" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>${logoData ? '<Relationship Id="rIdLogo" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/logo.png"/>' : ''}</Relationships>`;
+    const files = [
+      { name: '[Content_Types].xml', data: te.encode(types) },
+      { name: '_rels/.rels', data: te.encode(rels) },
+      { name: 'word/document.xml', data: te.encode(doc) },
+      { name: 'word/styles.xml', data: te.encode(styles) },
+      { name: 'word/_rels/document.xml.rels', data: te.encode(docRels) }
+    ];
+    if (logoData) files.push({ name: 'word/media/logo.png', data: logoData });
+    return zip(files);
+  }
+
+  /* ----- PDF ----- */
+  async function buildPdf() {
+    const m = buildModel();
+    const PW = 595.28, PH = 841.89, M = 28, CW = PW - 2 * M, FS = 9.5, PADX = 5, PADY = 2.6;
+    const ctx = document.createElement('canvas').getContext('2d');
+    const CP = { '€': 0x80, '‚': 0x82, 'ƒ': 0x83, '„': 0x84, '…': 0x85, '†': 0x86, '‡': 0x87, 'ˆ': 0x88, '‰': 0x89, 'Š': 0x8A, '‹': 0x8B, 'Œ': 0x8C, 'Ž': 0x8E, '‘': 0x91, '’': 0x92, '“': 0x93, '”': 0x94, '•': 0x95, '–': 0x96, '—': 0x97, '˜': 0x98, '™': 0x99, 'š': 0x9A, '›': 0x9B, 'œ': 0x9C, 'ž': 0x9E, 'Ÿ': 0x9F };
+    const sub = t => String(t).replace(/\r/g, '').replace(/\t/g, ' ').replace(/₹/g, 'Rs.');
+    const enc = t => { let o = ''; for (const ch of t) { const c = ch.codePointAt(0); o += (c >= 32 && c <= 126) || (c >= 160 && c <= 255) ? ch : CP[ch] ? String.fromCharCode(CP[ch]) : '?'; } return o.replace(/[\\()]/g, '\\$&'); };
+    const meas = (t, b, fs) => { ctx.font = `${b ? 'bold ' : ''}${fs}px Arial, Helvetica, sans-serif`; return ctx.measureText(t).width; };
+    function wrap(text, w, b, fs) {
+      const out = [];
+      for (const p of sub(text).split('\n')) {
+        let line = '';
+        for (let wd of p.split(' ')) {
+          const tryL = line ? line + ' ' + wd : wd;
+          if (meas(tryL, b, fs) <= w) { line = tryL; continue; }
+          if (line) { out.push(line); line = ''; }
+          while (meas(wd, b, fs) > w && wd.length > 1) { let i = wd.length - 1; while (i > 1 && meas(wd.slice(0, i), b, fs) > w) i--; out.push(wd.slice(0, i)); wd = wd.slice(i); }
+          line = wd;
+        }
+        out.push(line);
+      }
+      return out;
+    }
+
+    let logoRgb = null, lw = 0, lh = 0;
+    if (m.logo) {
+      const img = await loadImg(m.logo), c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
+      const cx = c.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, c.width, c.height); cx.drawImage(img, 0, 0);
+      const px = cx.getImageData(0, 0, c.width, c.height).data; logoRgb = new Uint8Array(c.width * c.height * 3);
+      for (let i = 0, j = 0; i < px.length; i += 4) { logoRgb[j++] = px[i]; logoRgb[j++] = px[i + 1]; logoRgb[j++] = px[i + 2]; }
+      lw = c.width; lh = c.height;
+    }
+
+    const pages = [[]]; let y = M;
+    const P = () => pages[pages.length - 1];
+    const newPage = () => { pages.push([]); y = M; };
+    const rg = a => a.map(v => (v / 255).toFixed(3)).join(' ');
+    const Y = v => (PH - v).toFixed(2);
+    const LINE = [74, 85, 99];
+
+    function row(cols, specs, minH = 14) {
+      let ci = 0, x = M;
+      const cells = specs.map(sp => {
+        const span = sp.span || 1, w = cols.slice(ci, ci + span).reduce((a, b) => a + b, 0); ci += span;
+        const fs = sp.fs || FS, lines = sp.t ? wrap(sp.t, w - 2 * PADX, sp.b, fs) : [''];
+        const c = { ...sp, x, w, fs, lines, lh: fs * 1.22 }; x += w; return c;
+      });
+      const h = Math.max(minH, ...cells.map(c => c.lines.length * c.lh + 2 * PADY));
+      if (y + h > PH - M) newPage();
+      cells.forEach(c => {
+        if (c.fill) P().push(`${rg(c.fill)} rg ${c.x.toFixed(2)} ${Y(y + h)} ${c.w.toFixed(2)} ${h.toFixed(2)} re f`);
+        P().push(`${rg(LINE)} RG 0.5 w ${c.x.toFixed(2)} ${Y(y + h)} ${c.w.toFixed(2)} ${h.toFixed(2)} re S`);
+        c.lines.forEach((ln, i) => {
+          if (!ln) return;
+          const tw = meas(ln, c.b, c.fs);
+          const tx = c.align === 'center' ? c.x + (c.w - tw) / 2 : c.x + PADX;
+          const base = c.valign === 'bottom' ? y + h - PADY - c.fs * 0.2 - (c.lines.length - 1 - i) * c.lh : y + PADY + c.fs * 0.88 + i * c.lh;
+          P().push(`BT /${c.b ? 'F2' : 'F1'} ${c.fs} Tf ${rg(c.col || [23, 32, 46])} rg ${tx.toFixed(2)} ${Y(base)} Td (${enc(ln)}) Tj ET`);
+        });
+      });
+      y += h;
+    }
+
+    /* header */
+    const hy = y;
+    if (logoRgb) {
+      const k = Math.min(80 / lw, 40 / lh), w = lw * k, h = lh * k;
+      P().push(`q ${w.toFixed(2)} 0 0 ${h.toFixed(2)} ${M} ${Y(hy + h)} cm /Im1 Do Q`);
+    }
+    [[m.hotel, 14, hy + 14], [m.title, 17, hy + 36]].forEach(([t, fs, by]) => {
+      const s = sub(t); P().push(`BT /F2 ${fs} Tf 0.09 0.125 0.18 rg ${(PW / 2 - meas(s, true, fs) / 2).toFixed(2)} ${Y(by)} Td (${enc(s)}) Tj ET`);
+    });
+    y += 44;
+
+    m.sections.forEach(sc => {
+      const col = hexRgb(sc.color), on = hexRgb(sc.on), tint = tintRgb(sc.color);
+      const bar = (cols, span) => row(cols, [{ t: sc.title, b: true, fs: sc.center ? 12.5 : 10.5, fill: col, col: on, span, align: sc.center ? 'center' : 'left' }], sc.center ? 22 : 19);
+      if (sc.sign) {
+        const need = 4 + 19 + 18 + 40;
+        if (y + need > PH - M) { newPage(); } else y = PH - M - (need - 4);
+        const cols = [CW / 4, CW / 4, CW / 4, CW / 4];
+        bar(cols, 4);
+        row(cols, sc.rows.map(r => ({ t: r, b: true, fill: tint, align: 'center' })));
+        row(cols, sc.rows.map(() => ({ t: 'Signature:', fs: 9, valign: 'bottom' })), 40);
+        return;
+      }
+      y += 4;
+      if (y + 19 + 22 > PH - M) newPage();
+      if (sc.list) {
+        const cols = [CW * .29, CW * .71];
+        bar(cols, 2);
+        if (sc.head) row(cols, [{ t: sc.head[0], b: true, fs: 8.5, fill: tint }, { t: sc.head[1], b: true, fs: 8.5, fill: tint }], 15);
+        sc.rows.forEach(([a, b]) => row(cols, [{ t: a, b: true, fs: 9, fill: tint }, { t: b }]));
+      } else {
+        const cols = [.19, .31, .19, .31].map(x => CW * x);
+        bar(cols, 4);
+        sc.rows.forEach(r => row(cols, r.length === 1
+          ? [{ t: r[0].k, b: true, fs: 9, fill: tint }, { t: r[0].v, span: 3 }]
+          : [{ t: r[0].k, b: true, fs: 9, fill: tint }, { t: r[0].v }, { t: r[1].k, b: true, fs: 9, fill: tint }, { t: r[1].v }]));
+      }
+    });
+
+    /* assemble the file */
+    const chunks = [], offs = []; let len = 0;
+    const put = u => { chunks.push(u); len += u.length; };
+    const bin = s => { const u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i) & 255; return u; };
+    const obj = (n, s) => { offs[n] = len; put(bin(`${n} 0 obj\n${s}\nendobj\n`)); };
+    const stream = (n, dict, data) => { offs[n] = len; put(bin(`${n} 0 obj\n<< ${dict} /Length ${data.length} >>\nstream\n`)); put(data); put(bin('\nendstream\nendobj\n')); };
+    const base = logoRgb ? 6 : 5, N = base + pages.length * 2;
+    put(bin('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n'));
+    obj(1, '<< /Type /Catalog /Pages 2 0 R >>');
+    obj(2, `<< /Type /Pages /Count ${pages.length} /Kids [${pages.map((_, i) => `${base + i * 2 + 1} 0 R`).join(' ')}] >>`);
+    obj(3, '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
+    obj(4, '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+    if (logoRgb) stream(5, `/Type /XObject /Subtype /Image /Width ${lw} /Height ${lh} /ColorSpace /DeviceRGB /BitsPerComponent 8`, logoRgb);
+    pages.forEach((ops, i) => {
+      stream(base + i * 2, '', bin(ops.join('\n')));
+      obj(base + i * 2 + 1, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PW} ${PH}] /Resources << /Font << /F1 3 0 R /F2 4 0 R >>${logoRgb ? ' /XObject << /Im1 5 0 R >>' : ''} >> /Contents ${base + i * 2} 0 R >>`);
+    });
+    const xref = len;
+    put(bin(`xref\n0 ${N}\n0000000000 65535 f \n` + offs.slice(1, N).map(o => `${String(o).padStart(10, '0')} 00000 n \n`).join('') + `trailer\n<< /Size ${N} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`));
+    return new Blob(chunks, { type: 'application/pdf' });
+  }
+
+  async function runExport(kind) {
+    status.textContent = 'Preparing ' + kind.toUpperCase() + '…';
+    try {
+      const blob = kind === 'docx' ? await buildDocx() : await buildPdf();
+      download(blob, fileStem() + '.' + kind);
+      status.textContent = kind.toUpperCase() + ' downloaded';
+    } catch (err) { console.error(err); status.textContent = 'Could not create the ' + kind.toUpperCase() + '.'; }
+  }
+  $('#btnDocx').addEventListener('click', () => runExport('docx'));
+  $('#btnPdf').addEventListener('click', () => runExport('pdf'));
+
+  /* ---------- fit paper to narrow screens ---------- */
+  const sheet = $('#sheet'), stage = $('.stage');
+  function fit() {
+    const w = 210 * 96 / 25.4, k = Math.min(1, (window.innerWidth - 30) / w);
+    if (k < 1) {
+      stage.style.display = 'block'; stage.style.overflow = 'hidden';
+      sheet.style.transformOrigin = 'top left'; sheet.style.transform = 'scale(' + k + ')';
+      sheet.style.marginLeft = ((window.innerWidth - w * k) / 2) + 'px';
+      stage.style.height = (sheet.offsetHeight * k + 58) + 'px';
+    } else {
+      ['display', 'overflow', 'height'].forEach(p => { stage.style[p] = ''; });
+      sheet.style.transform = ''; sheet.style.marginLeft = '';
+    }
+  }
+  window.addEventListener('resize', fit);
+  if (window.ResizeObserver) new ResizeObserver(fit).observe(sheet);
+  fit();
+
+  /* ---------- start ---------- */
+  let start = SAMPLE;
+  try { const d = localStorage.getItem(KEY); if (d) start = JSON.parse(d); } catch {}
+  apply(start);
+})();
+</script>
+
+</body>
+</html>
